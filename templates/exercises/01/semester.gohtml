@@ -1,0 +1,6 @@
+{{define "semester"}}
+<h4>{{.Term}}</h4>
+    <ul>
+        {{range .Courses}} {{template "course" .}} {{end}}
+    </ul>
+{{end}}

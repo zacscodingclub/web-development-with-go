@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin:0 auto;
+            text-align:center;
+            margin-bottom:20px;
+        }
+        th, tr {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>All {{len .Dates}} Days of Data</h1>
+    {{template "dataTable" .}}
+</body>
+
+</html>
