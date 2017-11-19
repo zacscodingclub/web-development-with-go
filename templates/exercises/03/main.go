@@ -38,10 +38,7 @@ func main() {
 	header := lines[0]
 	d := buildDates(lines[1:])
 
-	td := templateData{
-		header,
-		d,
-	}
+	td := templateData{header, d}
 
 	index, err := os.Create("index.html")
 	logError(err)
