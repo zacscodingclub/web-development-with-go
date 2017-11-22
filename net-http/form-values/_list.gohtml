@@ -1,0 +1,9 @@
+{{define "list"}} {{range $key, $value := .}}
+<p>
+    <li>
+        <strong>{{$key}}</strong> -
+        <i>
+            {{$value}}</i>
+    </li>
+</p>
+{{end}} {{end}}

@@ -1,0 +1,27 @@
+{{define "url"}}
+<p>The request URL</p>
+<ul>
+    <li>
+        <strong>{{.Scheme}} </strong>
+    </li>
+    <li>
+        <strong>{{.Opaque}} </strong>
+    </li>
+    <li>
+        <strong>{{.Host}} </strong>
+    </li>
+    <li>
+        <strong>{{.Path}} </strong>
+    </li>
+    <li>
+        <strong>{{.RawPath}}</strong>
+    </li>
+    <li>
+        <strong>{{.RawQuery}}</strong>
+    </li>
+    <li>
+        <strong>{{.Fragment}} </strong>
+    </li>
+</ul>
+
+{{end}}
