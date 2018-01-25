@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>INDEX</title>
+</head>
+<body>
+
+{{ range . }}
+<img src="/public/photos/{{.}}" /><br />
+{{ end }}
+
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="photo">
+    <input type="submit">
+</form>
+</body>
+</html>
