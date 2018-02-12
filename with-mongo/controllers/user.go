@@ -6,15 +6,28 @@ import (
 	"net/http"
 
 	"../models"
+
 	"github.com/julienschmidt/httprouter"
-	"github.com/zacscodingclub/web-development-with-go/with-mongo/models"
+	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
-func CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+type UserController struct {
+	session *mgo.Session
+}
+
+func NewUserController(s *mgo.Session) *UserController {
+	return &UserController{s}
+}
+
+func (uc UserController) CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	u := models.User{}
 	json.NewDecoder(r.Body).Decode(&u)
 
-	u.Id = "111"
+	u.Id = bson.NewObjectId()
+
+	uc.session.DB("go-web-dev-db").C("users").Insert(u)
+
 	uj, _ := json.Marshal(u)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -22,20 +35,40 @@ func CreateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	fmt.Fprintf(w, "%s\n", uj)
 }
 
-func DeleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "Deleting the user")
-}
+func (uc UserController) DeleteUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	id := p.ByName("id")
 
-func GetUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	u := models.User{
-		Name:   "Zac",
-		Gender: "Male",
-		Age:    32,
-		Id:     p.ByName("id"),
+	if !bson.IsObjectIdHex(id) {
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
-	fmt.Println(p)
+	oid := bson.ObjectIdHex(id)
+	if err := uc.session.DB("go-web-dev-db").C("users").RemoveId(oid); err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, "User %d deleted", id)
+}
+
+func (uc UserController) GetUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	id := p.ByName("id")
+
+	if !bson.IsObjectIdHex(id) {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	oid := bson.ObjectIdHex(id)
+	u := models.User{}
+
+	if err := uc.session.DB("go-web-dev-db").C("users").FindId(oid).One(&u); err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	uj, _ := json.Marshal(u)
 
 	w.Header().Set("Content-Type", "application/json")
