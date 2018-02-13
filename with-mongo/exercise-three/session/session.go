@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"../models"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 const Length int = 30
@@ -25,15 +27,15 @@ func GetUser(w http.ResponseWriter, req *http.Request) models.User {
 		}
 
 	}
-	c.MaxAge = sessionLength
+	c.MaxAge = Length
 	http.SetCookie(w, c)
 
 	// if the user exists already, get user
 	var u models.User
 	if s, ok := Sessions[c.Value]; ok {
-		s.lastActivity = time.Now()
+		s.LastActivity = time.Now()
 		Sessions[c.Value] = s
-		u = Users[s.un]
+		u = Users[s.UserName]
 	}
 	return u
 }
@@ -45,12 +47,12 @@ func AlreadyLoggedIn(w http.ResponseWriter, req *http.Request) bool {
 	}
 	s, ok := Sessions[c.Value]
 	if ok {
-		s.lastActivity = time.Now()
+		s.LastActivity = time.Now()
 		Sessions[c.Value] = s
 	}
-	_, ok = Users[s.un]
+	_, ok = Users[s.UserName]
 	// refresh session
-	c.MaxAge = sessionLength
+	c.MaxAge = Length
 	http.SetCookie(w, c)
 	return ok
 }
@@ -59,7 +61,7 @@ func CleanSessions() {
 	fmt.Println("BEFORE CLEAN") // for demonstration purposes
 	Show()                      // for demonstration purposes
 	for k, v := range Sessions {
-		if time.Now().Sub(v.lastActivity) > (time.Second * 30) {
+		if time.Now().Sub(v.LastActivity) > (time.Second * 30) {
 			delete(Sessions, k)
 		}
 	}
@@ -72,7 +74,7 @@ func CleanSessions() {
 func Show() {
 	fmt.Println("********")
 	for k, v := range Sessions {
-		fmt.Println(k, v.un)
+		fmt.Println(k, v.UserName)
 	}
 	fmt.Println("")
 }

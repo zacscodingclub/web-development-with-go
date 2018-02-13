@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"net/http"
 	"html/template"
+	"net/http"
 
 	"../session"
 )
@@ -22,9 +22,9 @@ func (c Controller) Index(w http.ResponseWriter, req *http.Request) {
 }
 
 func (c Controller) Bar(w http.ResponseWriter, r *http.Request) {
-	u : session.GetUser(w, r)
+	u := session.GetUser(w, r)
 	if !session.AlreadyLoggedIn(w, r) {
-		http.Redirect(w, r "/", http.StatusSeeOther)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
@@ -33,5 +33,5 @@ func (c Controller) Bar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	session.Show()
-	c.tpl.ExecuteTemplate("w, "bar.gohtml", u)
+	c.tpl.ExecuteTemplate(w, "bar.gohtml", u)
 }

@@ -6,6 +6,9 @@ import (
 
 	"../models"
 	"../session"
+
+	uuid "github.com/satori/go.uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (c Controller) Signup(w http.ResponseWriter, req *http.Request) {
@@ -35,21 +38,21 @@ func (c Controller) Signup(w http.ResponseWriter, req *http.Request) {
 		}
 		c.MaxAge = session.Length
 		http.SetCookie(w, c)
-		dbSessions[c.Value] = session{un, time.Now()}
+		session.Sessions[c.Value] = models.Session{un, time.Now()}
 		// store user in dbUsers
 		bs, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.MinCost)
 		if err != nil {
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 			return
 		}
-		u = user{un, bs, f, l, r}
-		dbUsers[un] = u
+		u = models.User{un, bs, f, l, r}
+		session.Users[un] = u
 		// redirect
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
 	}
-	showSessions() // for demonstration purposes
-	tpl.ExecuteTemplate(w, "signup.gohtml", u)
+	session.Show() // for demonstration purposes
+	c.tpl.ExecuteTemplate(w, "signup.gohtml", u)
 }
 
 func (c Controller) Login(w http.ResponseWriter, req *http.Request) {
@@ -96,19 +99,19 @@ func (c Controller) Logout(w http.ResponseWriter, req *http.Request) {
 		http.Redirect(w, req, "/", http.StatusSeeOther)
 		return
 	}
-	c, _ := req.Cookie("session")
+	k, _ := req.Cookie("session")
 	// delete the session
-	delete(session.Sessions, c.Value)
+	delete(session.Sessions, k.Value)
 	// remove the cookie
-	c = &http.Cookie{
+	k = &http.Cookie{
 		Name:   "session",
 		Value:  "",
 		MaxAge: -1,
 	}
-	http.SetCookie(w, c)
+	http.SetCookie(w, k)
 
 	// clean up dbSessions
-	if time.Now().Sub(dbSessionsCleaned) > (time.Second * 30) {
+	if time.Now().Sub(session.LastCleaned) > (time.Second * 30) {
 		go session.CleanSessions()
 	}
 

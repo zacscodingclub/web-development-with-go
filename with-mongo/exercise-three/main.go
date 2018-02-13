@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"../controllers"
+	"./controllers"
 )
 
 var tpl *template.Template
