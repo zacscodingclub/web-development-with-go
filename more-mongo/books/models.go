@@ -8,6 +8,7 @@ import (
 	"github.com/zacscodingclub/web-development-with-go/more-mongo/config"
 	"gopkg.in/mgo.v2/bson"
 )
+
 type Book struct {
 	Isbn   string
 	Title  string
@@ -15,10 +16,10 @@ type Book struct {
 	Price  float32
 }
 
-func AllBooks() ([]Book, err) {
-	bks := []Book{}	
-	err := config.Books.Find(bson.M{}.All(&bks))
-	if err !+ nil {
+func AllBooks() ([]Book, error) {
+	bks := []Book{}
+	err := config.Books.Find(bson.M{}).All(&bks)
+	if err != nil {
 		return nil, err
 	}
 
@@ -28,11 +29,11 @@ func AllBooks() ([]Book, err) {
 func OneBook(r *http.Request) (Book, error) {
 	bk := Book{}
 	isbn := r.FormValue("isbn")
-	is isbn == "" {
+	if isbn == "" {
 		return bk, errors.New("400. Bad Request.")
 	}
 
-	err := config.Books.find(bson.M{"isbn": isbn}).one(&bk)
+	err := config.Books.Find(bson.M{"isbn": isbn}).One(&bk)
 	if err != nil {
 		return bk, err
 	}

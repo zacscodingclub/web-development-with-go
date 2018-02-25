@@ -3,7 +3,7 @@ package books
 import (
 	"net/http"
 
-	"github.com/zacsodingclub/web-development-with-go/more-mongo/config"
+	"github.com/zacscodingclub/web-development-with-go/more-mongo/config"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
